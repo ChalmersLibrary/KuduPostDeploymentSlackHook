@@ -17,7 +17,7 @@ function getSlackHookRequestOptions()
 
 function sendToSlack(parsedRequest, callback)
 {
-        if (!parsedRequest || (parsedRequest.body||'').trim()==='') {
+        if (!parsedRequest || (parsedRequest.body||'').trim() === '') {
             callback(true);
             return;
         }
@@ -80,13 +80,14 @@ function getSlackText(parsedBody)
     var hookType = parsedBody.job_name ? 'TriggeredJobFinished' : 'PostDepolyment';
     var hostName = parsedBody.hostName;
     var jobName = parsedBody.job_name;
+    var jobTrigger = parsedBody.trigger ? parsedBody.trigger.substr(0, parsedBody.trigger.indexOf(' ')) : '';
     var jobDuration = parsedBody.duration ? parsedBody.duration.substring(0,8) : '';
     var timeStamp = (parsedBody.endTime !== undefined ? parsedBody.endTime : (parsedBody.end_time !== undefined ? parsedBody.end_time : '')).substring(0,19).replace("T", " ");
-    var id = parsedBody.id;
+    var id = parsedBody.id
 
     return (
         '>>> ' +
-        (hookType == 'TriggeredJobFinished' ? 'Scheduled, took ' + jobDuration : 'Pushed by ' + (parsedBody.author !== undefined ? parsedBody.author + ' at ' : 'unknown at ')
+        (hookType == 'TriggeredJobFinished' ? 'Triggered by ' + jobTrigger + ', took ' + jobDuration : 'Pushed by ' + (parsedBody.author !== undefined ? parsedBody.author + ' at ' : 'unknown at ')
         + timeStamp + '\r\n' +
         (hostName ? '<https://' + hostName + '|' + hostName + '> ' : '') +
         (id ? 'Id: ' + parsedBody.id : '') +
