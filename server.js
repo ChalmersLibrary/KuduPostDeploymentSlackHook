@@ -1,13 +1,15 @@
+var fs      = require('fs');
 var http    = require('http');
 var url     = require('url');
 var slack   = require('./slack.js');
 var port    = process.env.port || 1337;
+var logfile = "log.txt";
 
 http.createServer(function (req, res) {
     var parsedRequest = parseRequest(req);
 
     req.on('end', function () {
-            if (!parsedRequest.body || parsedRequest.body == '')
+            if (!parsedRequest.body || parsedRequest.body === '')
             {
                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                 res.end("WCOM AB - Kudu Post Deployment Slack Hook");
@@ -21,6 +23,12 @@ http.createServer(function (req, res) {
                 if (!error) {
                     result.status   = 200;
                     result.text     = "Thanks!";
+                    
+                    fs.open(logfile, "a+",(err, fd) => {
+                        fs.writeFile(fd, parsedRequest.body + "\n", (err) => {
+                            fs.fdatasync(fd /*, optional callback here */);
+                        });
+                    });
                 }
                 res.writeHead(result.status, { 'Content-Type': 'text/plain' });
                 res.end(result.text);
